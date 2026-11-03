@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ course.name }}{% endblock %}
+{% block content %}
+<div class="card shadow-sm mb-4"><div class="card-body">
+  <h1>{{ course.name }}</h1>
+  <p class="lead">{{ course.description }}</p>
+</div></div>
+
+<h2 class="mb-3">Course lessons and mock exam</h2>
+<form method="post" action="{% url 'submit' course.id %}">
+  {% csrf_token %}
+  {% for lesson in course.lessons.all %}
+    <section class="card mb-3"><div class="card-header">
+      <strong>Lesson {{ forloop.counter }}: {{ lesson.title }}</strong>
+    </div><div class="card-body">
+      <p>{{ lesson.content|linebreaksbr }}</p>
+      {% for question in lesson.questions.all %}
+        <div class="border rounded p-3 mb-3">
+          <p class="fw-semibold">{{ forloop.counter }}. {{ question.text }}</p>
+          {% for choice in question.choices.all %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio"
+                     name="question_{{ question.id }}" id="choice_{{ choice.id }}"
+                     value="{{ choice.id }}" required>
+              <label class="form-check-label" for="choice_{{ choice.id }}">{{ choice.text }}</label>
+            </div>
+          {% empty %}
+            <p class="text-muted">No choices have been added for this question.</p>
+          {% endfor %}
+        </div>
+      {% empty %}
+        <p class="text-muted">No questions in this lesson yet.</p>
+      {% endfor %}
+    </div></section>
+  {% empty %}
+    <p>No lessons have been added to this course yet.</p>
+  {% endfor %}
+  {% if course.lessons.all %}
+    <button class="btn btn-success btn-lg" type="submit">Submit mock exam</button>
+  {% endif %}
+</form>
+{% endblock %}

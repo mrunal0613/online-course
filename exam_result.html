@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Exam Result{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body text-center">
+    {% if submission.percentage >= 70 %}
+      <h1 class="text-success">Congratulations!</h1>
+      <p class="lead">You successfully completed the mock exam.</p>
+    {% else %}
+      <h1 class="text-primary">Exam Completed</h1>
+      <p class="lead">Keep practising and try again!</p>
+    {% endif %}
+    <h2 class="my-3">Your score: {{ submission.score }} / {{ submission.total_questions }}</h2>
+    <p class="fs-4">Percentage: {{ submission.percentage }}%</p>
+  </div>
+</div>
+<h3 class="mt-4">Exam results</h3>
+{% for answer in submission.answers.all %}
+  <div class="card mb-2"><div class="card-body">
+    <p class="fw-semibold">{{ forloop.counter }}. {{ answer.question.text }}</p>
+    <p class="mb-1">Your answer:
+      {% if answer.selected_choice %}{{ answer.selected_choice.text }}{% else %}Not answered{% endif %}
+    </p>
+    {% if answer.is_correct %}
+      <span class="badge bg-success">Correct</span>
+    {% else %}
+      <span class="badge bg-danger">Incorrect</span>
+      {% for choice in answer.question.choices.all %}
+        {% if choice.is_correct %}<p class="text-success mt-2 mb-0">Correct answer: {{ choice.text }}</p>{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div></div>
+{% endfor %}
+<a href="{% url 'course_details' submission.course.id %}" class="btn btn-primary mt-3">Try again</a>
+{% endblock %}
